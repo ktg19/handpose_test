@@ -1,0 +1,32 @@
+<html>
+  <head>
+    <title>Handpose</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script><!--←公式には書いてない-->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/handpose"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script>
+      window.onload = load;
+      async function load() {
+        model = await handpose.load(); //モデル読み込み
+        setInterval(async function(){estimate(model)}, 200)
+      }
+
+      async function estimate(model){
+        const predictions = await model.estimateHands(document.querySelector("#camera"));//#cameraの内容から予測
+        if (predictions.length > 0) {
+          const url = "http://127.0.0.1:5000/axios"
+          axios.get(url, {params: {predictions: predictions}})
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <p style="padding-left:500px;">
+        <h1>handpose</h1>
+        <img id="camera" src="{{ url_for('video_feed') }}">
+    </p>
+  </body>
+</html>
